@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>客戶資料登錄</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f7fa; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        h1 { color: #2c3e50; font-size: 20px; margin-bottom: 20px; text-align: center; }
+        h2 { color: #34495e; font-size: 16px; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 2px solid #3498db; }
+        
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 14px; color: #2c3e50; margin-bottom: 6px; font-weight: 500; }
+        input, select { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; }
+        input:focus, select:focus { outline: none; border-color: #3498db; }
+        
+        .row { display: flex; gap: 12px; }
+        .row .form-group { flex: 1; }
+        
+        .service-group, .paper-group { background: #f8f9fa; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+        .group-title { font-size: 14px; font-weight: 600; color: #3498db; margin-bottom: 12px; }
+        
+        .item-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+        .item-row select { flex: 2; min-width: 150px; }
+        .item-row input[type="number"] { flex: 1; min-width: 80px; }
+        
+        .price-display { font-size: 12px; color: #27ae60; font-weight: 500; margin-left: 8px; }
+        
+        .total-section { background: #fff3cd; border-radius: 12px; padding: 16px; margin-top: 20px; text-align: center; }
+        .total-label { font-size: 16px; color: #856404; }
+        .total-amount { font-size: 28px; font-weight: bold; color: #e74c3c; margin-top: 8px; }
+        
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 20px; }
+        .btn-primary { background: #3498db; color: white; }
+        .btn-primary:hover { background: #2980b9; }
+        
+        .custom-input { display: none; margin-top: 8px; }
+        .custom-input.show { display: block; }
+        
+        .note { font-size: 11px; color: #7f8c8d; margin-top: 4px; }
+        
+        .collapsible-items { margin-bottom: 10px; }
+        
+        .item-header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            background: #f8f9fa;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .item-header:hover { background: #e9ecef; }
+        .item-header .toggle-icon { 
+            font-size: 18px; 
+            color: #3498db;
+            font-weight: bold;
+        }
+        .item-header.collapsed .toggle-icon::before { content: '+'; }
+        .item-header.expanded .toggle-icon::before { content: '−'; }
+        
+        .item-content { display: block; }
+        .item-content.collapsed { display: none; }
+        
+        .btn-toggle {
+            width: 100%;
+            padding: 12px;
+            border: 2px dashed #3498db;
+            border-radius: 8px;
+            background: transparent;
+            color: #3498db;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+        }
+        .btn-toggle:hover { background: #ebf5ff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 客戶資料登錄</h1>
+        
+        <form id="clientForm">
+            <!-- 基本資料 -->
+            <h2>基本資料</h2>
+            <div class="row">
+                <div class="form-group">
+                    <label>訂單編號</label>
+                    <input type="text" name="orderNo" required>
+                </div>
+                <div class="form-group">
+                    <label>日期</label>
+                    <input type="date" name="date" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label>客戶姓名</label>
+                    <input type="text" name="customerName" required>
+                </div>
+                <div class="form-group">
+                    <label>電話</label>
+                    <input type="tel" name="phone" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label>LINE名稱</label>
+                    <input type="text" name="lineName">
+                </div>
+                <div class="form-group">
+                    <label>宗教</label>
+                    <select name="religion">
+                        <option value="">請選擇</option>
+                        <option value="佛教/道教">佛教/道教</option>
+                        <option value="基督教/天主教">基督教/天主教</option>
+                        <option value="無宗教">無宗教</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>地址</label>
+                <input type="text" name="address">
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label>寵物類別</label>
+                    <select name="petType" onchange="updateServiceOptions()">
+                        <option value="">請選擇</option>
+                        <option value="狗">狗</option>
+                        <option value="貓">貓</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>寵物名稱</label>
+                    <input type="text" name="petName">
+                </div>
+                <div class="form-group">
+                    <label>寵物體重(kg)</label>
+                    <input type="number" name="petWeight" id="petWeight" min="0" step="0.1" oninput="onWeightChange()">
+                    <div class="note" id="weightNote"></div>
+                </div>
+            </div>
+            
+            <!-- 服務項目 -->
+            <h2>🔥 服務項目 (1-4)</h2>
+            <div id="serviceItems" class="collapsible-items"></div>
+            <button type="button" class="btn-toggle" onclick="addServiceItem()">+ 新增服務項目</button>
+            
+            <!-- 紙紮項目 -->
+            <h2>📦 紙紮項目 (1-8)</h2>
+            <div id="paperItems" class="collapsible-items"></div>
+            <button type="button" class="btn-toggle" onclick="addPaperItem()">+ 新增紙紮項目</button>
+            
+            <!-- 紀念品項目 -->
+            <h2>🎁 紀念品項目 (1-6)</h2>
+            <div id="memorialItems" class="collapsible-items"></div>
+            <button type="button" class="btn-toggle" onclick="addMemorialItem()">+ 新增紀念品項目</button>
+            
+            <!-- 總金額 -->
+            <div class="total-section">
+                <div class="total-label">💰 總金額</div>
+                <div class="total-amount" id="totalAmount">$0</div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">提交表單</button>
+        </form>
+    </div>
+
+    <script>
+        // 服務項目選項
+        const serviceOptions = [
+            { value: '', text: '請選擇服務項目' },
+            { value: '個別火化', text: '個別火化' },
+            { value: '個別水化', text: '個別水化' },
+            { value: '團體火化', text: '團體火化' },
+            { value: '個別樹葬', text: '個別樹葬' },
+            { value: '福樹', text: '福樹' },
+            { value: '相思樹', text: '相思樹' },
+            { value: '盆葬', text: '盆葬' },
+            { value: '晉塔', text: '晉塔' },
+            { value: '豎靈', text: '豎靈' },
+            { value: '大體美容', text: '大體美容' },
+            { value: '誦經', text: '誦經' },
+            { value: '法會', text: '法會' }
+        ];
+        
+        // 紙紮選項及價格
+        const paperOptions = [
+            { value: '', text: '請選擇紙紮項目' },
+            { value: '寵物金', text: '寵物金', price: 100 },
+            { value: '消災金(小)', text: '消災金(小)', price: 400 },
+            { value: '消災金(大)', text: '消災金(大)', price: 1000 },
+            { value: '狗糧小', text: '狗糧小', price: 200 },
+            { value: '貓糧小', text: '貓糧小', price: 200 },
+            { value: '狗糧(大份)', text: '狗糧(大份)', price: 600 },
+            { value: '貓糧(大份)', text: '貓糧(大份)', price: 600 },
+            { value: '品牌狗糧', text: '品牌狗糧', price: 600 },
+            { value: '品牌貓糧', text: '品牌貓糧', price: 600 },
+            { value: '往生錢', text: '往生錢', price: 100 },
+            { value: '庫錢', text: '庫錢', price: 100 },
+            { value: '九品蓮花', text: '九品蓮花', price: 200 },
+            { value: '零食包', text: '零食包', price: 200 },
+            { value: '罐頭組(中)', text: '罐頭組(中)', price: 400 },
+            { value: '藥師金', text: '藥師金', price: 100 },
+            { value: '除疾金', text: '除疾金', price: 100 },
+            { value: '僕人', text: '僕人', price: 300 },
+            { value: '補運金/神咒組', text: '補運金/神咒組', price: 100 },
+            { value: '小屋', text: '小屋', price: 300 },
+            { value: '精美屋(貓咪)', text: '精美屋(貓咪)', price: 700 },
+            { value: '精美屋(狗狗)', text: '精美屋(狗狗)', price: 700 },
+            { value: '舒適庭院屋貓咪', text: '舒適庭院屋(貓咪)', price: 900 },
+            { value: '舒適庭院屋(狗狗)', text: '舒適庭院屋(狗狗)', price: 900 },
+            { value: '蛋糕', text: '蛋糕', price: 900 },
+            { value: '現代庭院屋(貓咪)', text: '現代庭院屋(貓咪)', price: 1200 },
+            { value: '現代庭院屋(狗狗)', text: '現代庭院屋(狗狗)', price: 1200 },
+            { value: '現代庭院屋(蘿蔔)', text: '現代庭院屋(蘿蔔)', price: 1200 },
+            { value: '精緻屋', text: '精緻屋', price: 1500 },
+            { value: '歡樂庭院別墅', text: '歡樂庭院別墅', price: 1700 },
+            { value: '步步時尚屋', text: '步步時尚屋', price: 2000 },
+            { value: '遊戲屋司機女傭', text: '遊戲屋司機女傭', price: 3000 },
+            { value: '城堡度假村', text: '城堡度假村', price: 3000 },
+            { value: '貓跳台', text: '貓跳台', price: 3000 },
+            { value: '莊園鄉村', text: '莊園鄉村', price: 2700 },
+            { value: '豪宅泳池', text: '豪宅泳池', price: 3700 },
+            { value: '祈福套組', text: '祈福套組', price: 600 },
+            { value: '圓滿套組', text: '圓滿套組', price: 1000 },
+            { value: '自訂', text: '自訂項目...', price: 0 }
+        ];
+        
+        // 紀念品選項及價格
+        const memorialOptions = [
+            { value: '', text: '請選擇紀念品' },
+            { value: '腳掌鑰匙圈', text: '腳掌鑰匙圈', price: 1200 },
+            { value: '貓咪造型鑰匙圈', text: '貓咪造型鑰匙圈', price: 1200 },
+            { value: '腳掌刻字鑰匙圈', text: '腳掌刻字鑰匙圈', price: 1500 },
+            { value: '愛心鑰匙圈(金)', text: '愛心鑰匙圈(金)', price: 1200 },
+            { value: '愛心鑰匙圈(銀)', text: '愛心鑰匙圈(銀)', price: 1200 },
+            { value: '刻字愛心項鍊(銀)', text: '刻字愛心項鍊(銀)', price: 1500 },
+            { value: '刻字愛心項鍊(玫瑰金)', text: '刻字愛心項鍊(玫瑰金)', price: 1500 },
+            { value: '手鍊(愛心銀)', text: '手鍊(愛心銀)', price: 1000 },
+            { value: '手鍊(愛心金)', text: '手鍊(愛心金)', price: 1000 },
+            { value: '桌上型月亮(藍)', text: '桌上型月亮(藍)', price: 800 },
+            { value: '桌上型月亮(粉)', text: '桌上型月亮(粉)', price: 800 },
+            { value: '桌上型魯夫', text: '桌上型魯夫', price: 1000 },
+            { value: '桌上型無臉男', text: '桌上型無臉男', price: 1000 },
+            { value: '桌上型喬巴', text: '桌上型喬巴', price: 1000 },
+            { value: '足印相框', text: '足印相框', price: 600 },
+            { value: '毛髮/刻字相框(骨頭)', text: '毛髮/刻字相框(骨頭)', price: 800 },
+            { value: '毛髮/刻字相框(貓咪)', text: '毛髮/刻字相框(貓咪)', price: 800 },
+            { value: '毛髮/刻字相框(愛心吊牌)', text: '毛髮/刻字相框(愛心吊牌)', price: 800 },
+            { value: '毛髮/刻字相框(玻璃球)', text: '毛髮/刻字相框(玻璃球)', price: 800 },
+            { value: '吊牌', text: '吊牌', price: 200 },
+            { value: '腳掌造型石碑相框', text: '腳掌造型石碑相框', price: 800 },
+            { value: '愛心項鍊(玫瑰金)', text: '愛心項鍊(玫瑰金)', price: 1200 },
+            { value: '愛心腳掌項鍊(銀)', text: '愛心腳掌項鍊(銀)', price: 1200 },
+            { value: '愛心腳掌項鍊(玫瑰金)', text: '愛心腳掌項鍊(玫瑰金)', price: 1200 },
+            { value: '愛心腳掌項鍊(黑)', text: '愛心腳掌項鍊(黑)', price: 1200 },
+            { value: '愛心腳掌項鍊(金)', text: '愛心腳掌項鍊(金)', price: 1200 },
+            { value: '骨頭造型腳掌項鍊(銀)', text: '骨頭造型腳掌項鍊(銀)', price: 1200 },
+            { value: '骨頭造型腳掌項鍊(金)', text: '骨頭造型腳掌項鍊(金)', price: 1200 },
+            { value: '骨頭造型腳掌項鍊(玫瑰金)', text: '骨頭造型腳掌項鍊(玫瑰金)', price: 1200 },
+            { value: '骨頭造型腳掌項鍊(黑)', text: '骨頭造型腳掌項鍊(黑)', price: 1200 },
+            { value: '水滴項鍊(銀)', text: '水滴項鍊(銀)', price: 1200 },
+            { value: '水滴項鍊(金)', text: '水滴項鍊(金)', price: 1200 },
+            { value: '水滴項鍊(玫瑰金)', text: '水滴項鍊(玫瑰金)', price: 1200 },
+            { value: 'Together Forever', text: 'Together Forever', price: 1200 },
+            { value: '十字架', text: '十字架', price: 1200 },
+            { value: '粉水晶(愛心)', text: '粉水晶(愛心)', price: 1200 },
+            { value: '粉水晶(寬長柱)', text: '粉水晶(寬長柱)', price: 1200 },
+            { value: '粉水晶(窄長柱)', text: '粉水晶(窄長柱)', price: 1200 },
+            { value: '圓形愛心腳掌項鍊_銀', text: '圓形愛心腳掌項鍊_銀', price: 1200 },
+            { value: '圓形愛心腳掌項鍊_玫瑰金', text: '圓形愛心腳掌項鍊_玫瑰金', price: 1200 },
+            { value: '圓形愛心腳掌項鍊_金', text: '圓形愛心腳掌項鍊_金', price: 1200 },
+            { value: '圓形腳掌_金骨頭', text: '圓形腳掌_金骨頭', price: 1200 },
+            { value: '腳掌造型項鍊', text: '腳掌造型項鍊', price: 1200 },
+            { value: '腳掌造型刻字項鍊', text: '腳掌造型刻字項鍊', price: 1500 },
+            { value: '貓咪造型項鍊', text: '貓咪造型項鍊', price: 1200 },
+            { value: '金屬圓柱_透明', text: '金屬圓柱_透明', price: 1200 },
+            { value: '圓形藝術風_生命樹', text: '圓形藝術風_生命樹', price: 1200 },
+            { value: '圓形藝術風_愛心', text: '圓形藝術風_愛心', price: 1200 },
+            { value: '圓形帶耳朵造型藝術風', text: '圓形帶耳朵造型藝術風', price: 1200 },
+            { value: '浮油花紀念品', text: '浮油花紀念品', price: 1200 },
+            { value: '照片馬克杯', text: '照片馬克杯', price: 300 },
+            { value: '懷錶手鍊', text: '懷錶手鍊', price: 1200 },
+            { value: '懷表項鍊', text: '懷表項鍊', price: 1200 },
+            { value: '透明項鍊', text: '透明項鍊', price: 1200 },
+            { value: '玻璃罐(軟木塞)', text: '玻璃罐(軟木塞)', price: 100 },
+            { value: '玻璃罐(銀蓋. 金蓋)', text: '玻璃罐(銀蓋. 金蓋)', price: 200 },
+            { value: '波波美斯', text: '波波美斯', price: null },
+            { value: '其他', text: '其他', price: null },
+            { value: '自訂', text: '自訂項目...', price: 0 }
+        ];
+        
+        // 個別火化價格表（依體重）
+        const individualBurnPrices = {
+            '未滿1公斤': 2800,
+            '未滿3公斤': 3000,
+            '5公斤以下': 3500,
+            '6-10公斤': 4500,
+            '11-20公斤': 5500,
+            '20公斤以上': 'calculate'  // 超過20公斤，每公斤+100
+        };
+        
+        // 個別水化價格表（依體重）
+        const waterBurnPrices = {
+            '未滿1公斤': 3100,
+            '未滿3公斤': 3300,
+            '5公斤以下': 3800,
+            '6-10公斤': 4800,
+            '11-15公斤': 5800
+        };
+        
+        // 集體火化價格表（依體重）
+        const collectiveBurnPrices = {
+            '5公斤以下': 1500,
+            '6-10公斤': 1800,
+            '11-20公斤': 2400,
+            '21-30公斤': 3600,
+            '30公斤以上': 'calculate'  // 超過30公斤，每公斤+100
+        };
+        
+        // 計算服務費用（根據寵物體重）
+        function calculateServicePrice() {
+            const weight = parseFloat(document.getElementById('petWeight').value) || 0;
+            return weight;
+        }
+        
+        // 當寵物體重改變時，重新計算所有服務項目費用
+        function onWeightChange() {
+            // 更新所有已經選取的服務項目價格
+            for (let i = 1; i <= serviceCount; i++) {
+                const select = document.querySelector(`[name="service${i}"]`);
+                if (select && select.value) {
+                    updateServicePrice(i);
+                }
+            }
+            calculateTotal();
+        }
+        
+        // 服務項目計數器
+        let serviceCount = 0;
+        const maxServiceItems = 4;
+        
+        // 新增服務項目
+        function addServiceItem() {
+            if (serviceCount >= maxServiceItems) {
+                alert('最多只能新增 ' + maxServiceItems + ' 項服務');
+                return;
+            }
+            serviceCount++;
+            const serviceContainer = document.getElementById('serviceItems');
+            const html = `
+                <div class="service-group" id="serviceGroup${serviceCount}">
+                    <div class="item-header" onclick="toggleServiceItem(${serviceCount})">
+                        <span class="group-title">服務項目 ${serviceCount}</span>
+                        <span class="toggle-icon" id="serviceToggle${serviceCount}">+</span>
+                    </div>
+                    <div class="item-content collapsed" id="serviceContent${serviceCount}">
+                        <div class="form-group">
+                            <select name="service${serviceCount}" onchange="updateServicePrice(${serviceCount})">
+                                ${serviceOptions.map(o => `<option value="${o.value}">${o.text}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="form-group" style="display:flex; align-items:center;">
+                            <label style="margin-bottom:0; margin-right:8px;">金額</label>
+                            <input type="number" name="service${serviceCount}_price" id="service${serviceCount}_price" value="0" onchange="calculateTotal()">
+                            <span class="price-display" id="service${serviceCount}_display"></span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            serviceContainer.insertAdjacentHTML('beforeend', html);
+        }
+        
+        // 切換服務項目展開/收起
+        function toggleServiceItem(num) {
+            const header = document.querySelector(`#serviceGroup${num} .item-header`);
+            const content = document.getElementById(`serviceContent${num}`);
+            
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                header.classList.remove('collapsed');
+                header.classList.add('expanded');
+            } else {
+                content.classList.add('collapsed');
+                header.classList.remove('expanded');
+                header.classList.add('collapsed');
+            }
+        }
+        
+        // 更新服務項目價格（根據寵物體重自動計算）
+        function updateServicePrice(num) {
+            const select = document.querySelector(`[name="service${num}"]`);
+            const priceInput = document.getElementById(`service${num}_price`);
+            const display = document.getElementById(`service${num}_display`);
+            const service = select.value;
+            
+            const weight = parseFloat(document.getElementById('petWeight').value) || 0;
+            
+            let price = 0;
+            let displayText = '';
+            
+            if (service === '個別火化') {
+                if (weight <= 0) {
+                    displayText = '(請先輸入寵物體重)';
+                } else if (weight < 1) {
+                    price = 2800;
+                    displayText = `(${weight}kg)`;
+                } else if (weight < 3) {
+                    price = 3000;
+                    displayText = `(${weight}kg)`;
+                } else if (weight <= 5) {
+                    price = 3500;
+                    displayText = `(${weight}kg)`;
+                } else if (weight <= 10) {
+                    price = 4500;
+                    displayText = `(${weight}kg)`;
+                } else if (weight <= 20) {
+                    price = 5500;
+                    displayText = `(${weight}kg)`;
+                } else if (weight > 20) {
+                    price = 5500 + Math.floor((weight - 20) * 100);
+                    displayText = `(${weight}kg，超過20kg每公斤+100)`;
+                }
+            } else if (service === '個別水化') {
+                if (weight <= 0) {
+                    displayText = '(請先輸入寵物體重)';
+                } else if (weight < 1) {
+                    price = 3100;
+                    displayText = `(${weight}kg)`;
+                } else if (weight < 3) {
+                    price = 3300;
+                    displayText = `(${weight}kg)`;
+                } else if (weight <= 5) {
+                    price = 3800;
+                    displayText = `(${weight}kg)`;
+                } else if (weight <= 10) {
+                    price = 4800;
+                    displayText = `(${weight}kg)`;
+                } else if (weight <= 15) {
+                    price = 5800;
+                    displayText = `(${weight}kg)`;
+                } else {
+                    displayText = `(${weight}kg，超過15kg請電洽)`;
+                }
+            } else if (service === '團體火化') {
+                if (weight <= 0) {
+                    displayText = '(請先輸入寵物體重)';
+                } else if (weight <= 5) {
+                    price = 1500;
+                    displayText = `(${weight}kg)`;
+                } else if (weight <= 10) {
+                    price = 1800;
+                    displayText = `(${weight}kg)`;
+                } else if (weight <= 20) {
+                    price = 2400;
+                    displayText = `(${weight}kg)`;
+                } else if (weight <= 30) {
+                    price = 3600;
+                    displayText = `(${weight}kg)`;
+                } else if (weight > 30) {
+                    price = 3600 + Math.floor((weight - 30) * 100);
+                    displayText = `(${weight}kg，超過30kg每公斤+100)`;
+                }
+            }
+            
+            priceInput.value = price;
+            display.textContent = displayText;
+            calculateTotal();
+        }
+        
+        // 紙紮項目計數器
+        let paperCount = 0;
+        const maxPaperItems = 8;
+        
+        // 新增紙紮項目
+        function addPaperItem() {
+            if (paperCount >= maxPaperItems) {
+                alert('最多只能新增 ' + maxPaperItems + ' 項紙紮');
+                return;
+            }
+            paperCount++;
+            const paperContainer = document.getElementById('paperItems');
+            const html = `
+                <div class="paper-group" id="paperGroup${paperCount}">
+                    <div class="item-header" onclick="togglePaperItem(${paperCount})">
+                        <span class="group-title">紙紮 ${paperCount}</span>
+                        <span class="toggle-icon" id="paperToggle${paperCount}">+</span>
+                    </div>
+                    <div class="item-content collapsed" id="paperContent${paperCount}">
+                        <div class="item-row">
+                            <select name="paper${paperCount}_item" onchange="updatePaperPrice(${paperCount})">
+                                ${paperOptions.map(o => `<option value="${o.value}">${o.text}${o.price ? ' ($'+o.price+')' : ''}</option>`).join('')}
+                            </select>
+                            <input type="number" name="paper${paperCount}_qty" id="paper${paperCount}_qty" value="1" min="1" onchange="calculateTotal()">
+                            <input type="number" name="paper${paperCount}_price" id="paper${paperCount}_price" value="0" placeholder="金額" onchange="calculateTotal()">
+                        </div>
+                        <div class="custom-input" id="custom${paperCount}">
+                            <input type="text" name="paper${paperCount}_custom" placeholder="自訂項目名稱">
+                        </div>
+                        <div class="price-display" id="paper${paperCount}_display"></div>
+                    </div>
+                </div>
+            `;
+            paperContainer.insertAdjacentHTML('beforeend', html);
+        }
+        
+        // 切換紙紮項目展開/收起
+        function togglePaperItem(num) {
+            const header = document.querySelector(`#paperGroup${num} .item-header`);
+            const content = document.getElementById(`paperContent${num}`);
+            const icon = document.getElementById(`paperToggle${num}`);
+            
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                header.classList.remove('collapsed');
+                header.classList.add('expanded');
+            } else {
+                content.classList.add('collapsed');
+                header.classList.remove('expanded');
+                header.classList.add('collapsed');
+            }
+        }
+        
+        // 紀念品項目計數器
+        let memorialCount = 0;
+        const maxMemorialItems = 6;
+        
+        // 新增紀念品項目
+        function addMemorialItem() {
+            if (memorialCount >= maxMemorialItems) {
+                alert('最多只能新增 ' + maxMemorialItems + ' 項紀念品');
+                return;
+            }
+            memorialCount++;
+            const memorialContainer = document.getElementById('memorialItems');
+            const html = `
+                <div class="paper-group" id="memorialGroup${memorialCount}">
+                    <div class="item-header" onclick="toggleMemorialItem(${memorialCount})">
+                        <span class="group-title">紀念品 ${memorialCount}</span>
+                        <span class="toggle-icon" id="memorialToggle${memorialCount}">+</span>
+                    </div>
+                    <div class="item-content collapsed" id="memorialContent${memorialCount}">
+                        <div class="item-row">
+                            <select name="memorial${memorialCount}_item" onchange="updateMemorialPrice(${memorialCount})">
+                                ${memorialOptions.map(o => `<option value="${o.value}">${o.text}${o.price !== null && o.price !== undefined ? ' ($'+o.price+')' : ''}</option>`).join('')}
+                            </select>
+                            <input type="number" name="memorial${memorialCount}_qty" id="memorial${memorialCount}_qty" value="1" min="1" onchange="calculateTotal()">
+                            <input type="number" name="memorial${memorialCount}_price" id="memorial${memorialCount}_price" value="0" placeholder="金額" onchange="calculateTotal()">
+                        </div>
+                        <div class="custom-input" id="memorialCustom${memorialCount}">
+                            <input type="text" name="memorial${memorialCount}_custom" placeholder="自訂項目名稱">
+                        </div>
+                        <div class="price-display" id="memorial${memorialCount}_display"></div>
+                    </div>
+                </div>
+            `;
+            memorialContainer.insertAdjacentHTML('beforeend', html);
+        }
+        
+        // 切換紀念品項目展開/收起
+        function toggleMemorialItem(num) {
+            const header = document.querySelector(`#memorialGroup${num} .item-header`);
+            const content = document.getElementById(`memorialContent${num}`);
+            const icon = document.getElementById(`memorialToggle${num}`);
+            
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                header.classList.remove('collapsed');
+                header.classList.add('expanded');
+            } else {
+                content.classList.add('collapsed');
+                header.classList.remove('expanded');
+                header.classList.add('collapsed');
+            }
+        }
+        
+        // 更新紙紮價格（修正版）
+        function updatePaperPrice(num) {
+            const select = document.querySelector(`[name="paper${num}_item"]`);
+            const priceInput = document.getElementById(`paper${num}_price`);
+            const customDiv = document.getElementById(`custom${num}`);
+            const display = document.getElementById(`paper${num}_display`);
+            
+            const selectedValue = select.value;
+            const selectedOption = paperOptions.find(o => o.value === selectedValue);
+            
+            if (selectedValue === '自訂') {
+                customDiv.classList.add('show');
+                priceInput.value = 0;
+                display.textContent = '(請輸入金額)';
+            } else if (selectedOption && selectedOption.price) {
+                customDiv.classList.remove('show');
+                priceInput.value = selectedOption.price;
+                display.textContent = `(${selectedOption.price}元)`;
+            } else {
+                customDiv.classList.remove('show');
+                priceInput.value = 0;
+                display.textContent = '';
+            }
+            calculateTotal();
+        }
+        
+        // 更新紀念品價格
+        function updateMemorialPrice(num) {
+            const select = document.querySelector(`[name="memorial${num}_item"]`);
+            const priceInput = document.getElementById(`memorial${num}_price`);
+            const customDiv = document.getElementById(`memorialCustom${num}`);
+            const display = document.getElementById(`memorial${num}_display`);
+            
+            const selectedValue = select.value;
+            const selectedOption = memorialOptions.find(o => o.value === selectedValue);
+            
+            if (selectedValue === '自訂') {
+                customDiv.classList.add('show');
+                priceInput.value = 0;
+                display.textContent = '(請輸入金額)';
+            } else if (selectedOption && selectedOption.price !== null && selectedOption.price !== undefined) {
+                customDiv.classList.remove('show');
+                priceInput.value = selectedOption.price;
+                display.textContent = `(${selectedOption.price}元)`;
+            } else if (selectedValue === '波波美斯' || selectedValue === '其他') {
+                customDiv.classList.remove('show');
+                priceInput.value = 0;
+                display.textContent = '(請輸入金額)';
+            } else {
+                customDiv.classList.remove('show');
+                priceInput.value = 0;
+                display.textContent = '';
+            }
+            calculateTotal();
+        }
+        
+        // 計算總金額
+        function calculateTotal() {
+            let total = 0;
+            
+            // 服務項目（動態數量）
+            for (let i = 1; i <= serviceCount; i++) {
+                const price = parseInt(document.getElementById(`service${i}_price`)?.value) || 0;
+                total += price;
+            }
+            
+            // 紙紮項目（動態數量）
+            for (let i = 1; i <= paperCount; i++) {
+                const qty = parseInt(document.getElementById(`paper${i}_qty`)?.value) || 1;
+                const price = parseInt(document.getElementById(`paper${i}_price`)?.value) || 0;
+                total += qty * price;
+            }
+            
+            // 紀念品項目（動態數量）
+            for (let i = 1; i <= memorialCount; i++) {
+                const qty = parseInt(document.getElementById(`memorial${i}_qty`)?.value) || 1;
+                const price = parseInt(document.getElementById(`memorial${i}_price`)?.value) || 0;
+                total += qty * price;
+            }
+            
+            document.getElementById('totalAmount').textContent = '$' + total.toLocaleString();
+        }
+        
+        // 提交表單
+        document.getElementById('clientForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+            
+            console.log('Form data:', data);
+            alert('表單提交成功！\n總金額：' + document.getElementById('totalAmount').textContent);
+            
+            // TODO: 發送到 Google Sheets
+        });
+        
+        // 設定今天日期
+        document.querySelector('[name="date"]').value = new Date().toISOString().split('T')[0];
+    </script>
+</body>
+</html>
