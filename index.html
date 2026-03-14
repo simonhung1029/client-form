@@ -80,11 +80,60 @@
             transition: all 0.2s;
         }
         .btn-toggle:hover { background: #ebf5ff; }
+        .btn-delete { 
+            background: #e74c3c; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            padding: 4px 8px; 
+            cursor: pointer; 
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        .btn-delete:hover { background: #c0392b; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>📋 客戶資料登錄</h1>
+        <!-- 搜尋和導航區塊 -->
+        <div id="searchSection" style="background: #e3f2fd; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                <input type="text" id="searchOrderNo" placeholder="輸入訂單編號查詢" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <button type="button" onclick="searchOrder()" style="background: #1976d2; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">🔍 查詢</button>
+            </div>
+            <div id="navButtons" style="justify-content: space-between; align-items: center; padding: 8px; background: #fff3cd; border-radius: 8px;">
+            <div style="font-size: 12px; color: #666;">💡 輸入訂單編號查詢，或使用導航按鈕瀏覽資料</div>
+            <div>
+                <button type="button" onclick="goToPrevious()" style="background: #2196f3; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-right: 8px;">◀ 上一筆</button>
+            <button type="button" onclick="goToNext()" style="background: #2196f3; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">下一筆 ▶</button>
+                <button type="button" onclick="clearForm()" style="background: #4caf50; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-left: 8px;">➕ 新增資料</button>
+            </div>
+            <div id="recordInfo" style="font-size: 12px; color: #666;"></div>
+        </div>
+        <div id="navButtonsReal" style="display: none; justify-content: space-between; align-items: center;">
+                <div>
+                    <button type="button" onclick="goToPrevious()" style="background: #2196f3; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-right: 8px;">◀ 上一筆</button>
+                    <button type="button" onclick="goToNext()" style="background: #2196f3; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">下一筆 ▶</button>
+                </div>
+                <div id="recordInfo" style="font-size: 12px; color: #666;"></div>
+            </div>
+            <div id="editModeButtons" style="margin-top: 8px;">
+                <button type="button" onclick="enableEditMode()" style="background: #ff9800; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-right: 8px;">✏️ 編輯</button>
+                <button type="button" onclick="deleteCurrentRecord()" style="background: #f44336; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">🗑️ 刪除</button>
+            </div>
+            <div id="saveCancelButtons" style="display: none; margin-top: 8px;">
+                <button type="button" onclick="saveChanges()" style="background: #4caf50; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-right: 8px;">💾 儲存修改</button>
+                <button type="button" onclick="cancelEdit()" style="background: #9e9e9e; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">取消</button>
+            </div>
+        </div>
+
+        <!-- 模式提示 -->
+        <div id="modeIndicator" style="background: #4caf50; color: white; padding: 8px; border-radius: 4px; text-align: center; margin-bottom: 16px; display: none;">
+            📝 編輯模式 - 訂單編號: <span id="editOrderNo"></span>
+        </div>
+
+
         
         <form id="clientForm">
             <!-- 基本資料 -->
@@ -285,7 +334,9 @@
                 <input type="text" name="submitterCustom" id="submitterCustom" placeholder="請輸入表單提交人員" style="display: none; margin-top: 8px;">
             </div>
             
-            <button type="submit" class="btn btn-primary">提交表單</button>
+            <button type="button" id="btnNew" class="btn btn-primary" onclick="submitForm()" style="background: #4caf50;">📤 提交</button>
+        <button type="button" id="btnUpdate" class="btn btn-primary" onclick="submitForm()" style="background: #ff9800; display: none;">💾 儲存修改</button>
+        
         </form>
     </div>
 
@@ -531,6 +582,7 @@
                     <div class="item-header" onclick="toggleServiceItem(${serviceCount})">
                         <span class="group-title">服務項目 ${serviceCount}</span>
                         <span class="toggle-icon" id="serviceToggle${serviceCount}">+</span>
+                        <button type="button" class="btn-delete" onclick="removeServiceItem(${serviceCount})">✕ 刪除</button>
                     </div>
                     <div class="item-content collapsed" id="serviceContent${serviceCount}">
                         <div class="form-group">
@@ -663,6 +715,7 @@
                     <div class="item-header" onclick="togglePaperItem(${paperCount})">
                         <span class="group-title">紙紮 ${paperCount}</span>
                         <span class="toggle-icon" id="paperToggle${paperCount}">+</span>
+                        <button type="button" class="btn-delete" onclick="removePaperItem(${paperCount})">✕ 刪除</button>
                     </div>
                     <div class="item-content collapsed" id="paperContent${paperCount}">
                         <div class="item-row">
@@ -716,6 +769,7 @@
                     <div class="item-header" onclick="toggleMemorialItem(${memorialCount})">
                         <span class="group-title">紀念品 ${memorialCount}</span>
                         <span class="toggle-icon" id="memorialToggle${memorialCount}">+</span>
+                        <button type="button" class="btn-delete" onclick="removeMemorialItem(${memorialCount})">✕ 刪除</button>
                     </div>
                     <div class="item-content collapsed" id="memorialContent${memorialCount}">
                         <div class="item-row">
@@ -825,6 +879,7 @@
                     <div class="item-header" onclick="toggleUrnItem(${urnCount})">
                         <span class="group-title">骨灰罐 ${urnCount}</span>
                         <span class="toggle-icon" id="urnToggle${urnCount}">+</span>
+                        <button type="button" class="btn-delete" onclick="removeUrnItem(${urnCount})">✕ 刪除</button>
                     </div>
                     <div class="item-content collapsed" id="urnContent${urnCount}">
                         <div class="item-row">
@@ -902,6 +957,7 @@
                     <div class="item-header" onclick="toggleOtherItem(${otherCount})">
                         <span class="group-title">其他費用 ${otherCount}</span>
                         <span class="toggle-icon" id="otherToggle${otherCount}">+</span>
+                        <button type="button" class="btn-delete" onclick="removeOtherItem(${otherCount})">✕ 刪除</button>
                     </div>
                     <div class="item-content collapsed" id="otherContent${otherCount}">
                         <div class="form-group">
@@ -948,6 +1004,7 @@
                     <div class="item-header" onclick="toggleNoteItem(${noteCount})">
                         <span class="group-title">備註 ${noteCount}</span>
                         <span class="toggle-icon" id="noteToggle${noteCount}">+</span>
+                        <button type="button" class="btn-delete" onclick="removeNoteItem(${noteCount})">✕ 刪除</button>
                     </div>
                     <div class="item-content collapsed" id="noteContent${noteCount}">
                         <div class="form-group">
@@ -974,7 +1031,67 @@
             }
         }
         
-        // 計算總金額
+        
+// 刪除服務項目
+function removeServiceItem(num) {
+    const element = document.getElementById('serviceGroup' + num);
+    if (element) {
+        element.remove();
+        serviceCount--;
+        calculateTotal();
+    }
+}
+
+// 刪除紙紮項目
+function removePaperItem(num) {
+    const element = document.getElementById('paperGroup' + num);
+    if (element) {
+        element.remove();
+        paperCount--;
+        calculateTotal();
+    }
+}
+
+// 刪除紀念品項目
+function removeMemorialItem(num) {
+    const element = document.getElementById('memorialGroup' + num);
+    if (element) {
+        element.remove();
+        memorialCount--;
+        calculateTotal();
+    }
+}
+
+// 刪除骨灰罐項目
+function removeUrnItem(num) {
+    const element = document.getElementById('urnGroup' + num);
+    if (element) {
+        element.remove();
+        urnCount--;
+        calculateTotal();
+    }
+}
+
+// 刪除其他費用項目
+function removeOtherItem(num) {
+    const element = document.getElementById('otherGroup' + num);
+    if (element) {
+        element.remove();
+        otherCount--;
+        calculateTotal();
+    }
+}
+
+// 刪除備註項目
+function removeNoteItem(num) {
+    const element = document.getElementById('noteGroup' + num);
+    if (element) {
+        element.remove();
+        noteCount--;
+    }
+}
+
+// 計算總金額
         function calculateTotal() {
             let total = 0;
             
@@ -1121,6 +1238,14 @@
             const formData = new FormData(this);
             const data = Object.fromEntries(formData.entries());
             
+            // 加入總金額
+            data.totalAmount = document.getElementById('totalAmount').textContent.replace('$', '').replace(/,/g, '');
+            
+            // 加入轉帳狀態
+            const isTransferFull = document.getElementById('isTransferFull');
+            const isTransferPartial = document.getElementById('isTransferPartial');
+            data.isTransfer = (isTransferFull && isTransferFull.checked) || (isTransferPartial && isTransferPartial.checked) ? '是' : '否';
+            
             console.log('Form data:', data);
             
             // 發送到 Google Apps Script
@@ -1145,6 +1270,359 @@
         
         // 設定今天日期
         document.querySelector('[name="date"]').value = new Date().toISOString().split('T')[0];
-    </script>
+    
+
+        // 全域變數
+        let currentRecord = null;
+        let isEditMode = false;
+        let currentRowIndex = 0;
+        
+        // 搜尋訂單
+        function searchOrder() {
+            const orderNo = document.getElementById('searchOrderNo').value.trim();
+            if (!orderNo) {
+                alert('請輸入訂單編號');
+                return;
+            }
+            
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbxAfWiiVRCv7GjASdEWbowPPkmx6xtrD8QIGQyivbASoJ4WRxKGrMDqnqPdtXClRt-R/exec';
+            
+            google.script.run.withSuccessHandler(function(response) {
+                const result = JSON.parse(response);
+                if (result.result === 'success') {
+                    loadRecordToForm(result.data);
+                    showNavButtons(result.data.currentIndex, result.data.totalRecords);
+                } else {
+                    alert('找不到資料: ' + result.message);
+                }
+            }).searchByOrderNo(orderNo);
+        }
+        
+        // 導航函數
+        function goToFirst() {
+            google.script.run.withSuccessHandler(handleNavResponse).getFirstRecord();
+        }
+        
+        function goToPrevious() {
+            if (currentRowIndex > 1) {
+                google.script.run.withSuccessHandler(handleNavResponse).getPreviousRecord(currentRowIndex);
+            }
+        }
+        
+        function goToNext() {
+            google.script.run.withSuccessHandler(handleNavResponse).getNextRecord(currentRowIndex);
+        }
+        
+        function goToLast() {
+            google.script.run.withSuccessHandler(handleNavResponse).getLastRecord();
+        }
+        
+        function handleNavResponse(response) {
+            const result = JSON.parse(response);
+            if (result.result === 'success') {
+                loadRecordToForm(result.data);
+                showNavButtons(result.data.currentIndex, result.data.totalRecords);
+            } else {
+                alert('載入資料失敗: ' + result.message);
+            }
+        }
+        
+        // 顯示導航按鈕
+        function showNavButtons(currentIndex, totalRecords) {
+            currentRowIndex = currentIndex;
+            document.getElementById('navButtons').style.display = 'none';
+            document.getElementById('navButtonsReal').style.display = 'flex';
+            document.getElementById('editModeButtons').style.display = 'block';
+            document.getElementById('recordInfo').textContent = '第 ' + currentIndex + ' 筆 / 共 ' + totalRecords + ' 筆';
+        }
+        
+        // 載入資料到表單
+        function loadRecordToForm(data) {
+            currentRecord = data;
+            isEditMode = true;
+            
+            // 填入基本資料
+            setFieldValue('orderNo', data['訂單編號']);
+            setFieldValue('date', data['日期']);
+            setFieldValue('customerName', data['客戶姓名']);
+            setFieldValue('phone', data['電話']);
+            setFieldValue('lineName', data['LINE名稱']);
+            setFieldValue('religion', data['宗教']);
+            setFieldValue('address', data['地址']);
+            setFieldValue('petType', data['寵物類別']);
+            setFieldValue('petName', data['寵物名稱']);
+            setFieldValue('petWeight', data['寵物體重']);
+            
+            // 填入服務項目
+            clearDynamicItems('serviceItems', 'serviceCount');
+            for (let i = 1; i <= 4; i++) {
+                if (data['服務項目' + i]) {
+                    addServiceItem();
+                    setFieldValue('service' + i, data['服務項目' + i]);
+                    setFieldValue('service' + i + '_price', data['服務項目' + i + '金額']);
+                }
+            }
+            
+            // 填入紙紮項目
+            clearDynamicItems('paperItems', 'paperCount');
+            for (let i = 1; i <= 8; i++) {
+                if (data['紙紮' + i]) {
+                    addPaperItem();
+                    setFieldValue('paper' + i + '_item', data['紙紮' + i]);
+                    setFieldValue('paper' + i + '_qty', data['紙紮' + i + '數量']);
+                    setFieldValue('paper' + i + '_price', data['紙紮' + i + '金額']);
+                }
+            }
+            
+            // 填入紀念品項目
+            clearDynamicItems('memorialItems', 'memorialCount');
+            for (let i = 1; i <= 6; i++) {
+                if (data['紀念品' + i]) {
+                    addMemorialItem();
+                    setFieldValue('memorial' + i + '_item', data['紀念品' + i]);
+                    setFieldValue('memorial' + i + '_qty', data['紀念品' + i + '數量']);
+                    setFieldValue('memorial' + i + '_price', data['紀念品' + i + '金額']);
+                }
+            }
+            
+            // 填入骨灰罐項目
+            clearDynamicItems('urnItems', 'urnCount');
+            for (let i = 1; i <= 4; i++) {
+                if (data['骨灰罐' + i]) {
+                    addUrnItem();
+                    setFieldValue('urn' + i + '_item', data['骨灰罐' + i]);
+                    setFieldValue('urn' + i + '_qty', data['骨灰罐' + i + '數量']);
+                    setFieldValue('urn' + i + '_price', data['骨灰罐' + i + '金額']);
+                }
+            }
+            
+            // 填入其他費用
+            clearDynamicItems('otherItems', 'otherCount');
+            for (let i = 1; i <= 3; i++) {
+                if (data['其他費用' + i]) {
+                    addOtherItem();
+                    setFieldValue('other' + i + '_item', data['其他費用' + i]);
+                    setFieldValue('other' + i + '_price', data['其他費用' + i + '金額']);
+                }
+            }
+            
+            // 填入備註
+            clearDynamicItems('noteItems', 'noteCount');
+            for (let i = 1; i <= 3; i++) {
+                if (data['備註' + i]) {
+                    addNoteItem();
+                    setFieldValue('note' + i, data['備註' + i]);
+                }
+            }
+            
+            // 填入其他欄位
+            setFieldValue('caseSource', data['案件來源']);
+            setFieldValue('staff1', data['服務人員1']);
+            setFieldValue('staff2', data['服務人員2']);
+            setFieldValue('paymentStatus', data['收款狀態']);
+            setFieldValue('deposit', data['訂金']);
+            setFieldValue('submitter', data['表單提交人員']);
+            
+            // 總金額
+            document.getElementById('totalAmount').textContent = '$' + (data['總金額'] || '0');
+            
+            // 顯示編輯模式
+            document.getElementById('modeIndicator').style.display = 'block';
+            document.getElementById('editOrderNo').textContent = data['訂單編號'];
+            document.getElementById('btnNew').style.display = 'none';
+            document.getElementById('btnUpdate').style.display = 'block';
+            document.getElementById('btnClear').style.display = 'block';
+            
+            calculateTotal();
+            togglePaymentFields();
+        }
+        
+        // 輔助函數
+        function setFieldValue(name, value) {
+            const el = document.querySelector('[name="' + name + '"]');
+            if (el) el.value = value || '';
+        }
+        
+        function clearDynamicItems(containerId, countVar) {
+            document.getElementById(containerId).innerHTML = '';
+            eval(countVar + ' = 0');
+        }
+        
+        // 啟用編輯模式
+        function enableEditMode() {
+            document.getElementById('editModeButtons').style.display = 'none';
+            document.getElementById('saveCancelButtons').style.display = 'block';
+        }
+        
+        // 取消編輯
+        function cancelEdit() {
+            if (currentRecord) {
+                loadRecordToForm(currentRecord);
+            }
+            document.getElementById('editModeButtons').style.display = 'block';
+            document.getElementById('saveCancelButtons').style.display = 'none';
+        }
+        
+        // 儲存修改
+        function saveChanges() {
+            if (!currentRecord || !currentRecord.rowIndex) {
+                alert('沒有可儲存的資料');
+                return;
+            }
+            
+            const formData = getFormData();
+            formData.totalAmount = document.getElementById('totalAmount').textContent.replace('$', '').replace(/,/g, '');
+            
+            const isTransferFull = document.getElementById('isTransferFull');
+            const isTransferPartial = document.getElementById('isTransferPartial');
+            formData.isTransfer = (isTransferFull && isTransferFull.checked) || (isTransferPartial && isTransferPartial.checked) ? '是' : '否';
+            
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbxAfWiiVRCv7GjASdEWbowPPkmx6xtrD8QIGQyivbASoJ4WRxKGrMDqnqPdtXClRt-R/exec';
+            
+            // 使用 JSONP 方式呼叫
+            const callbackName = 'updateRecord_' + Date.now();
+            window[callbackName] = function(response) {
+                const result = JSON.parse(response);
+                if (result.result === 'success') {
+                    alert('✅ 資料已更新！');
+                    document.getElementById('saveCancelButtons').style.display = 'none';
+                    document.getElementById('editModeButtons').style.display = 'block';
+                    // 重新載入資料
+                    searchOrder();
+                } else {
+                    alert('❌ 更新失敗: ' + result.message);
+                }
+                delete window[callbackName];
+            };
+            
+            // 構建表單數據
+            const form = new FormData();
+            for (let key in formData) {
+                form.append(key, formData[key]);
+            }
+            form.append('callback', callbackName);
+            
+            fetch(scriptUrl + '?action=update&rowIndex=' + currentRecord.rowIndex, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: form
+            }).then(function() {
+                // 等待回調
+                setTimeout(function() {
+                    if (window[callbackName]) {
+                        alert('✅ 資料已更新！');
+                        document.getElementById('saveCancelButtons').style.display = 'none';
+                        document.getElementById('editModeButtons').style.display = 'block';
+                        searchOrder();
+                    }
+                }, 1000);
+            });
+        }
+        
+        // 刪除目前資料
+        function deleteCurrentRecord() {
+            if (!currentRecord || !currentRecord.rowIndex) {
+                alert('沒有可刪除的資料');
+                return;
+            }
+            
+            if (!confirm('確定要刪除這筆資料嗎？此操作無法復原！')) {
+                return;
+            }
+            
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbxAfWiiVRCv7GjASdEWbowPPkmx6xtrD8QIGQyivbASoJ4WRxKGrMDqnqPdtXClRt-R/exec';
+            
+            google.script.run.withSuccessHandler(function(response) {
+                const result = JSON.parse(response);
+                if (result.result === 'success') {
+                    alert('✅ 資料已刪除！');
+                    clearForm();
+                    document.getElementById('navButtons').style.display = 'none';
+                    document.getElementById('editModeButtons').style.display = 'none';
+                    document.getElementById('modeIndicator').style.display = 'none';
+                } else {
+                    alert('❌ 刪除失敗: ' + result.message);
+                }
+            }).deleteRecord(currentRecord.rowIndex);
+        }
+        
+        // 清除表單 / 新增模式
+        function clearForm() {
+            document.getElementById('clientForm').reset();
+            document.getElementById('totalAmount').textContent = '$0';
+            document.getElementById('serviceItems').innerHTML = '';
+            document.getElementById('paperItems').innerHTML = '';
+            document.getElementById('memorialItems').innerHTML = '';
+            document.getElementById('urnItems').innerHTML = '';
+            document.getElementById('otherItems').innerHTML = '';
+            document.getElementById('noteItems').innerHTML = '';
+            
+            serviceCount = 0;
+            paperCount = 0;
+            memorialCount = 0;
+            urnCount = 0;
+            otherCount = 0;
+            noteCount = 0;
+            
+            currentRecord = null;
+            isEditMode = false;
+            currentRowIndex = 0;
+            
+            document.getElementById('navButtons').style.display = 'flex';
+            document.getElementById('navButtonsReal').style.display = 'none';
+            document.getElementById('editModeButtons').style.display = 'block';
+            document.getElementById('saveCancelButtons').style.display = 'none';
+            document.getElementById('modeIndicator').style.display = 'none';
+            document.getElementById('btnNew').style.display = 'block';
+            document.getElementById('btnUpdate').style.display = 'none';
+            document.getElementById('btnClear').style.display = 'block';
+            
+            // 設定今天日期
+            document.querySelector('[name="date"]').value = new Date().toISOString().split('T')[0];
+        }
+        
+        // 提交表單
+        function submitForm() {
+            // 驗證收款狀態
+            const paymentStatus = document.querySelector('input[name="paymentStatus"]:checked');
+            if (!paymentStatus) {
+                alert('請選擇收款狀態（全員收取或未全员收取）');
+                return;
+            }
+            
+            const formData = getFormData();
+            
+            // 加入總金額
+            formData.totalAmount = document.getElementById('totalAmount').textContent.replace('$', '').replace(/,/g, '');
+            
+            // 加入轉帳狀態
+            const isTransferFull = document.getElementById('isTransferFull');
+            const isTransferPartial = document.getElementById('isTransferPartial');
+            formData.isTransfer = (isTransferFull && isTransferFull.checked) || (isTransferPartial && isTransferPartial.checked) ? '是' : '否';
+            
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbxAfWiiVRCv7GjASdEWbowPPkmx6xtrD8QIGQyivbASoJ4WRxKGrMDqnqPdtXClRt-R/exec';
+            
+            fetch(scriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: new URLSearchParams(formData)
+            })
+            .then(response => {
+                alert('✅ 表單提交成功！\n總金額：' + document.getElementById('totalAmount').textContent + '\n\n資料已儲存到 Google Sheets');
+                clearForm();
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("❌ 提交失敗，請稍後再試");
+            });
+        }
+        
+        // 取得表單資料
+        function getFormData() {
+            const formData = new FormData(document.getElementById('clientForm'));
+            return Object.fromEntries(formData.entries());
+        }
+
+</script>
 </body>
 </html>
