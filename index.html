@@ -1122,9 +1122,25 @@
             const data = Object.fromEntries(formData.entries());
             
             console.log('Form data:', data);
-            alert('表單提交成功！\n總金額：' + document.getElementById('totalAmount').textContent);
             
-            // TODO: 發送到 Google Sheets
+            // 發送到 Google Apps Script
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbxAfWiiVRCv7GjASdEWbowPPkmx6xtrD8QIGQyivbASoJ4WRxKGrMDqnqPdtXClRt-R/exec';
+            
+            fetch(scriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: new URLSearchParams(data)
+            })
+            .then(response => {
+                alert('✅ 表單提交成功！\n總金額：' + document.getElementById('totalAmount').textContent + '\n\n資料已儲存到 Google Sheets');
+                // 重置表單
+                document.getElementById('clientForm').reset();
+                document.getElementById('totalAmount').textContent = '$0';
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("❌ 提交失敗，請稍後再試");
+            });
         });
         
         // 設定今天日期
