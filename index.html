@@ -96,17 +96,17 @@
                 </div>
                 <div class="form-group">
                     <label>日期</label>
-                    <input type="date" name="date" required>
+                    <input type="date" name="date">
                 </div>
             </div>
             <div class="row">
                 <div class="form-group">
                     <label>客戶姓名</label>
-                    <input type="text" name="customerName" required>
+                    <input type="text" name="customerName">
                 </div>
                 <div class="form-group">
                     <label>電話</label>
-                    <input type="tel" name="phone" required>
+                    <input type="tel" name="phone">
                 </div>
             </div>
             <div class="row">
@@ -164,10 +164,125 @@
             <div id="memorialItems" class="collapsible-items"></div>
             <button type="button" class="btn-toggle" onclick="addMemorialItem()">+ 新增紀念品項目</button>
             
-            <!-- 總金額 -->
+            <!-- 骨灰罐項目 -->
+            <h2>🏺 骨灰罐項目 (1-4)</h2>
+            <div id="urnItems" class="collapsible-items"></div>
+            <button type="button" class="btn-toggle" onclick="addUrnItem()">+ 新增骨灰罐項目</button>
+            
+            <!-- 其他費用項目 -->
+            <h2>💳 其他費用項目 (1-3)</h2>
+            <div id="otherItems" class="collapsible-items"></div>
+            <button type="button" class="btn-toggle" onclick="addOtherItem()">+ 新增其他費用項目</button>
+            
+            <!-- 備註項目 -->
+            <h2>📝 備註項目 (1-3)</h2>
+            <div id="noteItems" class="collapsible-items"></div>
+            <button type="button" class="btn-toggle" onclick="addNoteItem()">+ 新增備註項目</button>
+            
+            <!-- 案件來源 -->
+            <h2>📌 案件來源</h2>
+            <div class="form-group">
+                <select name="caseSource" id="caseSource" onchange="toggleCaseSourceCustom()">
+                    <option value="">請選擇案件來源</option>
+                    <option value="網路">網路</option>
+                    <option value="客人介紹">客人介紹</option>
+                    <option value="舊客人">舊客人</option>
+                    <option value="動物醫院">動物醫院</option>
+                    <option value="業者">業者</option>
+                    <option value="貓舍">貓舍</option>
+                    <option value="楊聰彬">楊聰彬</option>
+                    <option value="同仁">同仁</option>
+                    <option value="自訂">其他（請輸入）</option>
+                </select>
+                <input type="text" name="caseSourceCustom" id="caseSourceCustom" placeholder="請輸入案件來源" style="display: none; margin-top: 8px;">
+            </div>
+            
+            <!-- 服務人員 -->
+            <h2>👤 服務人員</h2>
+            <div class="row">
+                <div class="form-group">
+                    <label>服務人員1（填單）</label>
+                    <select name="staff1" id="staff1" onchange="toggleStaff1Custom()">
+                        <option value="">請選擇</option>
+                        <option value="Simon">Simon</option>
+                        <option value="黃菁穗">黃菁穗</option>
+                        <option value="葉廷維">葉廷維</option>
+                        <option value="林塏樺">林塏樺</option>
+                        <option value="陳宛瑜">陳宛瑜</option>
+                        <option value="藍翊庭">藍翊庭</option>
+                        <option value="自訂">其他（請輸入）</option>
+                    </select>
+                    <input type="text" name="staff1Custom" id="staff1Custom" placeholder="請輸入服務人員1" style="display: none; margin-top: 8px;">
+                </div>
+                <div class="form-group">
+                    <label>服務人員2（業務）<span style="color: #999; font-size: 12px; cursor: pointer;" onclick="toggleStaff2()">[顯示]</span></label>
+                    <select name="staff2" id="staff2" onchange="toggleStaff2Custom()" style="display: none;">
+                        <option value="">請選擇</option>
+                        <option value="Simon">Simon</option>
+                        <option value="黃菁穗">黃菁穗</option>
+                        <option value="葉廷維">葉廷維</option>
+                        <option value="林塏樺">林塏樺</option>
+                        <option value="陳宛瑜">陳宛瑜</option>
+                        <option value="藍翊庭">藍翊庭</option>
+                        <option value="自訂">其他（請輸入）</option>
+                    </select>
+                    <input type="text" name="staff2Custom" id="staff2Custom" placeholder="請輸入服務人員2" style="display: none; margin-top: 8px;">
+                </div>
+            </div>
+            
+            <!-- 總金額與收款狀態 -->
             <div class="total-section">
                 <div class="total-label">💰 總金額</div>
                 <div class="total-amount" id="totalAmount">$0</div>
+                
+                <!-- 收款狀態勾選 -->
+                <div class="payment-status" style="margin-top: 16px; padding-top: 16px; border-top: 1px dashed #ddd;">
+                    <label style="margin-bottom: 8px; display: block;">收款狀態（必選）</label>
+                    <div class="row" style="gap: 20px; flex-wrap: wrap;">
+                        <label style="display: flex; align-items: center; cursor: pointer; font-weight: normal;">
+                            <input type="radio" name="paymentStatus" value="full" onclick="togglePaymentFields()" style="width: auto; margin-right: 8px;"> ✅ 全額收取
+                            <label style="display: flex; align-items: center; cursor: pointer; font-weight: normal; margin-left: 12px;">
+                                <input type="checkbox" name="isTransfer" id="isTransferFull" style="width: auto; margin-right: 4px;"> 💳 轉帳
+                            </label>
+                        </label>
+                        <label style="display: flex; align-items: center; cursor: pointer; font-weight: normal;">
+                            <input type="radio" name="paymentStatus" value="partial" onclick="togglePaymentFields()" style="width: auto; margin-right: 8px;"> 📋 未全额收取
+                            <label style="display: flex; align-items: center; cursor: pointer; font-weight: normal; margin-left: 12px;">
+                                <input type="checkbox" name="isTransfer" id="isTransferPartial" style="width: auto; margin-right: 4px;" disabled> 💳 轉帳
+                            </label>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 訂金與待收款 -->
+            <div class="total-section" id="paymentFields" style="background: #e8f5e9; margin-top: 12px; display: none;">
+                <div class="row" style="justify-content: space-between; align-items: center;">
+                    <div class="form-group" style="flex: 1; margin-bottom: 0; margin-right: 12px;">
+                        <label style="color: #1976d2;">訂金</label>
+                        <input type="number" name="deposit" id="deposit" value="0" min="0" oninput="calculateTotal()" placeholder="輸入訂金">
+                    </div>
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label style="color: #388e3c;">💵 待收款</label>
+                        <div class="total-amount" id="collectionAmount" style="color: #388e3c;">$0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 表單提交人員 -->
+            <div class="form-group" style="margin-top: 16px;">
+                <label>表單提交人員</label>
+                <select name="submitter" id="submitter" onchange="toggleSubmitterCustom()">
+                    <option value="">請選擇</option>
+                    <option value="Simon">Simon</option>
+                    <option value="黃菁穗">黃菁穗</option>
+                    <option value="葉廷維">葉廷維</option>
+                    <option value="林塏樺">林塏樺</option>
+                    <option value="陳宛瑜">陳宛瑜</option>
+                    <option value="藍翊庭">藍翊庭</option>
+                    <option value="自訂">其他（請輸入）</option>
+                </select>
+                <input type="text" name="submitterCustom" id="submitterCustom" placeholder="請輸入表單提交人員" style="display: none; margin-top: 8px;">
             </div>
             
             <button type="submit" class="btn btn-primary">提交表單</button>
@@ -296,6 +411,60 @@
             { value: '玻璃罐(銀蓋. 金蓋)', text: '玻璃罐(銀蓋. 金蓋)', price: 200 },
             { value: '波波美斯', text: '波波美斯', price: null },
             { value: '其他', text: '其他', price: null },
+            { value: '自訂', text: '自訂項目...', price: 0 }
+        ];
+        
+        // 骨灰罐選項及價格（無重複）
+        const urnOptions = [
+            { value: '', text: '請選擇骨灰罐' },
+            { value: '鈦鋼玫瑰金腳印', text: '鈦鋼玫瑰金腳印', price: 1000 },
+            { value: '鈦鋼銀色腳印', text: '鈦鋼銀色腳印', price: 1000 },
+            { value: '鈦鋼金色腳印', text: '鈦鋼金色腳印', price: 1000 },
+            { value: '鈦鋼銀色愛心', text: '鈦鋼銀色愛心', price: 1000 },
+            { value: '鈦鋼銀色生命樹', text: '鈦鋼銀色生命樹', price: 1000 },
+            { value: '鈦鋼白色素面', text: '鈦鋼白色素面', price: 1000 },
+            { value: '鈦鋼白色兔子', text: '鈦鋼白色兔子', price: 1000 },
+            { value: '鈦鋼粉色素面', text: '鈦鋼粉色素面', price: 1000 },
+            { value: '鈦鋼粉色愛心', text: '鈦鋼粉色愛心', price: 1000 },
+            { value: '鈦鋼藍色素面', text: '鈦鋼藍色素面', price: 1000 },
+            { value: '鈦鋼藍色愛心', text: '鈦鋼藍色愛心', price: 1000 },
+            { value: '結晶釉(白)', text: '結晶釉(白)', price: 1000 },
+            { value: '結晶釉(藍)', text: '結晶釉(藍)', price: 1000 },
+            { value: '結晶釉(黃)', text: '結晶釉(黃)', price: 1000 },
+            { value: '結晶釉(粉)', text: '結晶釉(粉)', price: 1000 },
+            { value: '素面小罐白', text: '素面小罐白', price: 1000 },
+            { value: '素面小罐粉', text: '素面小罐粉', price: 1000 },
+            { value: '素面小罐淺綠', text: '素面小罐淺綠', price: 1000 },
+            { value: '素面小罐霽藍', text: '素面小罐霽藍', price: 1000 },
+            { value: '純白(大)', text: '純白(大)', price: 1200 },
+            { value: '木蓋素面方形(淡綠)', text: '木蓋素面方形(淡綠)', price: 1000 },
+            { value: '木蓋素面圓形(淡綠)', text: '木蓋素面圓形(淡綠)', price: 1000 },
+            { value: '木蓋素面圓形(深藍)', text: '木蓋素面圓形(深藍)', price: 1000 },
+            { value: '金珠蓋純白', text: '金珠蓋純白', price: 1200 },
+            { value: '菊花瓶', text: '菊花瓶', price: 1200 },
+            { value: '竹葉瓶', text: '竹葉瓶', price: 1200 },
+            { value: '天使蓋(白)', text: '天使蓋(白)', price: 1200 },
+            { value: '天使蓋(綠)', text: '天使蓋(綠)', price: 1200 },
+            { value: '天使蓋(粉)', text: '天使蓋(粉)', price: 1200 },
+            { value: '胖貓_橘', text: '胖貓_橘', price: 1200 },
+            { value: '胖貓_白', text: '胖貓_白', price: 1200 },
+            { value: '窯變(白)', text: '窯變(白)', price: 1200 },
+            { value: '窯變(藍)', text: '窯變(藍)', price: 1200 },
+            { value: '窯變(綠)', text: '窯變(綠)', price: 1200 },
+            { value: '黃白花朵(粉)', text: '黃白花朵(粉)', price: 1200 },
+            { value: '黃白花朵(白)', text: '黃白花朵(白)', price: 1200 },
+            { value: '紅白花朵(藍)', text: '紅白花朵(藍)', price: 1200 },
+            { value: '藍白花朵(白)', text: '藍白花朵(白)', price: 1200 },
+            { value: '白色花朵(白)', text: '白色花朵(白)', price: 1200 },
+            { value: '小經文罐(白)', text: '小經文罐(白)', price: 1200 },
+            { value: '小經文罐(藍)', text: '小經文罐(藍)', price: 1200 },
+            { value: '大經文罐(藍)', text: '大經文罐(藍)', price: 1400 },
+            { value: '經典款骨灰罐', text: '經典款骨灰罐', price: 1200 },
+            { value: '手拉坯', text: '手拉坯', price: 1400 },
+            { value: '小貓咪(白)', text: '小貓咪(白)', price: 1000 },
+            { value: '小貓咪(黑)', text: '小貓咪(黑)', price: 1000 },
+            { value: '小貓咪(粉)', text: '小貓咪(粉)', price: 1000 },
+            { value: '小貓咪(綠)', text: '小貓咪(綠)', price: 1000 },
             { value: '自訂', text: '自訂項目...', price: 0 }
         ];
         
@@ -639,6 +808,172 @@
             calculateTotal();
         }
         
+        // 骨灰罐項目計數器
+        let urnCount = 0;
+        const maxUrnItems = 4;
+        
+        // 新增骨灰罐項目
+        function addUrnItem() {
+            if (urnCount >= maxUrnItems) {
+                alert('最多只能新增 ' + maxUrnItems + ' 項骨灰罐');
+                return;
+            }
+            urnCount++;
+            const urnContainer = document.getElementById('urnItems');
+            const html = `
+                <div class="paper-group" id="urnGroup${urnCount}">
+                    <div class="item-header" onclick="toggleUrnItem(${urnCount})">
+                        <span class="group-title">骨灰罐 ${urnCount}</span>
+                        <span class="toggle-icon" id="urnToggle${urnCount}">+</span>
+                    </div>
+                    <div class="item-content collapsed" id="urnContent${urnCount}">
+                        <div class="item-row">
+                            <select name="urn${urnCount}_item" onchange="updateUrnPrice(${urnCount})">
+                                ${urnOptions.map(o => `<option value="${o.value}">${o.text}${o.price !== null && o.price !== undefined ? ' ($'+o.price+')' : ''}</option>`).join('')}
+                            </select>
+                            <input type="number" name="urn${urnCount}_qty" id="urn${urnCount}_qty" value="1" min="1" onchange="calculateTotal()">
+                            <input type="number" name="urn${urnCount}_price" id="urn${urnCount}_price" value="0" placeholder="金額" onchange="calculateTotal()">
+                        </div>
+                        <div class="custom-input" id="urnCustom${urnCount}">
+                            <input type="text" name="urn${urnCount}_custom" placeholder="自訂項目名稱">
+                        </div>
+                        <div class="price-display" id="urn${urnCount}_display"></div>
+                    </div>
+                </div>
+            `;
+            urnContainer.insertAdjacentHTML('beforeend', html);
+        }
+        
+        // 切換骨灰罐項目展開/收起
+        function toggleUrnItem(num) {
+            const header = document.querySelector(`#urnGroup${num} .item-header`);
+            const content = document.getElementById(`urnContent${num}`);
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                header.classList.remove('collapsed');
+                header.classList.add('expanded');
+            } else {
+                content.classList.add('collapsed');
+                header.classList.remove('expanded');
+                header.classList.add('collapsed');
+            }
+        }
+        
+        // 更新骨灰罐價格
+        function updateUrnPrice(num) {
+            const select = document.querySelector(`[name="urn${num}_item"]`);
+            const priceInput = document.getElementById(`urn${num}_price`);
+            const customDiv = document.getElementById(`urnCustom${num}`);
+            const display = document.getElementById(`urn${num}_display`);
+            
+            const selectedValue = select.value;
+            const selectedOption = urnOptions.find(o => o.value === selectedValue);
+            
+            if (selectedValue === '自訂') {
+                customDiv.classList.add('show');
+                priceInput.value = 0;
+                display.textContent = '(請輸入金額)';
+            } else if (selectedOption && selectedOption.price !== null && selectedOption.price !== undefined) {
+                customDiv.classList.remove('show');
+                priceInput.value = selectedOption.price;
+                display.textContent = `(${selectedOption.price}元)`;
+            } else {
+                customDiv.classList.remove('show');
+                priceInput.value = 0;
+                display.textContent = '';
+            }
+            calculateTotal();
+        }
+        
+        // 其他費用項目計數器
+        let otherCount = 0;
+        const maxOtherItems = 3;
+        
+        // 新增其他費用項目
+        function addOtherItem() {
+            if (otherCount >= maxOtherItems) {
+                alert('最多只能新增 ' + maxOtherItems + ' 項其他費用');
+                return;
+            }
+            otherCount++;
+            const otherContainer = document.getElementById('otherItems');
+            const html = `
+                <div class="paper-group" id="otherGroup${otherCount}">
+                    <div class="item-header" onclick="toggleOtherItem(${otherCount})">
+                        <span class="group-title">其他費用 ${otherCount}</span>
+                        <span class="toggle-icon" id="otherToggle${otherCount}">+</span>
+                    </div>
+                    <div class="item-content collapsed" id="otherContent${otherCount}">
+                        <div class="form-group">
+                            <input type="text" name="other${otherCount}_item" placeholder="費用項目">
+                        </div>
+                        <div class="form-group">
+                            <input type="number" name="other${otherCount}_price" id="other${otherCount}_price" value="0" placeholder="金額" oninput="calculateTotal()">
+                        </div>
+                    </div>
+                </div>
+            `;
+            otherContainer.insertAdjacentHTML('beforeend', html);
+        }
+        
+        // 切換其他費用項目展開/收起
+        function toggleOtherItem(num) {
+            const header = document.querySelector(`#otherGroup${num} .item-header`);
+            const content = document.getElementById(`otherContent${num}`);
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                header.classList.remove('collapsed');
+                header.classList.add('expanded');
+            } else {
+                content.classList.add('collapsed');
+                header.classList.remove('expanded');
+                header.classList.add('collapsed');
+            }
+        }
+        
+        // 備註項目計數器
+        let noteCount = 0;
+        const maxNoteItems = 3;
+        
+        // 新增備註項目
+        function addNoteItem() {
+            if (noteCount >= maxNoteItems) {
+                alert('最多只能新增 ' + maxNoteItems + ' 項備註');
+                return;
+            }
+            noteCount++;
+            const noteContainer = document.getElementById('noteItems');
+            const html = `
+                <div class="paper-group" id="noteGroup${noteCount}">
+                    <div class="item-header" onclick="toggleNoteItem(${noteCount})">
+                        <span class="group-title">備註 ${noteCount}</span>
+                        <span class="toggle-icon" id="noteToggle${noteCount}">+</span>
+                    </div>
+                    <div class="item-content collapsed" id="noteContent${noteCount}">
+                        <div class="form-group">
+                            <input type="text" name="note${noteCount}" placeholder="輸入備註內容">
+                        </div>
+                    </div>
+                </div>
+            `;
+            noteContainer.insertAdjacentHTML('beforeend', html);
+        }
+        
+        // 切換備註項目展開/收起
+        function toggleNoteItem(num) {
+            const header = document.querySelector(`#noteGroup${num} .item-header`);
+            const content = document.getElementById(`noteContent${num}`);
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                header.classList.remove('collapsed');
+                header.classList.add('expanded');
+            } else {
+                content.classList.add('collapsed');
+                header.classList.remove('expanded');
+                header.classList.add('collapsed');
+            }
+        }
+        
         // 計算總金額
         function calculateTotal() {
             let total = 0;
@@ -663,12 +998,125 @@
                 total += qty * price;
             }
             
+            // 骨灰罐項目（動態數量）
+            for (let i = 1; i <= urnCount; i++) {
+                const qty = parseInt(document.getElementById(`urn${i}_qty`)?.value) || 1;
+                const price = parseInt(document.getElementById(`urn${i}_price`)?.value) || 0;
+                total += qty * price;
+            }
+            
+            // 其他費用項目（無數量欄位）
+            for (let i = 1; i <= otherCount; i++) {
+                const price = parseInt(document.getElementById(`other${i}_price`)?.value) || 0;
+                total += price;
+            }
+            
+            // 計算訂金和待收款
+            const deposit = parseInt(document.getElementById('deposit')?.value) || 0;
+            const collection = total - deposit;
+            
             document.getElementById('totalAmount').textContent = '$' + total.toLocaleString();
+            document.getElementById('collectionAmount').textContent = '$' + collection.toLocaleString();
+        }
+        
+        // 切換收款欄位顯示
+        function togglePaymentFields() {
+            const paymentStatus = document.querySelector('input[name="paymentStatus"]:checked');
+            const paymentFields = document.getElementById('paymentFields');
+            const isTransferFull = document.getElementById('isTransferFull');
+            const isTransferPartial = document.getElementById('isTransferPartial');
+            
+            if (paymentStatus && paymentStatus.value === 'partial') {
+                paymentFields.style.display = 'block';
+                // 啟用未全额收取的轉帳勾選，停用全额收取的
+                isTransferPartial.disabled = false;
+                isTransferFull.checked = false;
+                isTransferFull.disabled = true;
+            } else if (paymentStatus && paymentStatus.value === 'full') {
+                paymentFields.style.display = 'none';
+                // 清空訂金
+                document.getElementById('deposit').value = 0;
+                document.getElementById('collectionAmount').textContent = '$0';
+                // 啟用全额收取的轉帳勾選，停用未全额收取的
+                isTransferFull.disabled = false;
+                isTransferPartial.checked = false;
+                isTransferPartial.disabled = true;
+            }
+            calculateTotal();
+        }
+        
+        // 切換案件來源自訂輸入
+        function toggleCaseSourceCustom() {
+            const caseSource = document.getElementById('caseSource');
+            const customInput = document.getElementById('caseSourceCustom');
+            if (caseSource.value === '自訂') {
+                customInput.style.display = 'block';
+            } else {
+                customInput.style.display = 'none';
+                customInput.value = '';
+            }
+        }
+        
+        // 切換服務人員1自訂輸入
+        function toggleStaff1Custom() {
+            const staff1 = document.getElementById('staff1');
+            const customInput = document.getElementById('staff1Custom');
+            if (staff1.value === '自訂') {
+                customInput.style.display = 'block';
+            } else {
+                customInput.style.display = 'none';
+                customInput.value = '';
+            }
+        }
+        
+        // 切換服務人員2顯示
+        function toggleStaff2() {
+            const staff2 = document.getElementById('staff2');
+            const customInput = document.getElementById('staff2Custom');
+            if (staff2.style.display === 'none') {
+                staff2.style.display = 'block';
+            } else {
+                staff2.style.display = 'none';
+                staff2.value = '';
+                customInput.style.display = 'none';
+                customInput.value = '';
+            }
+        }
+        
+        // 切換服務人員2自訂輸入
+        function toggleStaff2Custom() {
+            const staff2 = document.getElementById('staff2');
+            const customInput = document.getElementById('staff2Custom');
+            if (staff2.value === '自訂') {
+                customInput.style.display = 'block';
+            } else {
+                customInput.style.display = 'none';
+                customInput.value = '';
+            }
+        }
+        
+        // 切換表單提交人員自訂輸入
+        function toggleSubmitterCustom() {
+            const submitter = document.getElementById('submitter');
+            const customInput = document.getElementById('submitterCustom');
+            if (submitter.value === '自訂') {
+                customInput.style.display = 'block';
+            } else {
+                customInput.style.display = 'none';
+                customInput.value = '';
+            }
         }
         
         // 提交表單
         document.getElementById('clientForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            // 驗證收款狀態
+            const paymentStatus = document.querySelector('input[name="paymentStatus"]:checked');
+            if (!paymentStatus) {
+                alert('請選擇收款狀態（全額收取或未全额收取）');
+                return;
+            }
             
             const formData = new FormData(this);
             const data = Object.fromEntries(formData.entries());
